@@ -62,32 +62,32 @@ export function getTisPeriodInfo() {
   // Hangi dönemdeyiz?
   const isFirstPeriod = currentMonth >= 1 && currentMonth <= 6; // Ocak-Haziran
   
-  // Hangi dönemin verilerini alacağız?
-  let targetYear: number;
-  let targetPeriod: 1 | 2;
+  // Eski TİS: Mevcut maaşımızın hesaplandığı dönem (önceki dönem)
+  let oldTisYear: number;
+  let oldTisPeriod: 1 | 2;
   
   if (isFirstPeriod) {
     // Ocak-Haziran dönemindeyiz → Geçen yılın 2. dönem (Temmuz-Aralık) verisi
-    targetYear = currentYear - 1;
-    targetPeriod = 2;
+    oldTisYear = currentYear - 1;
+    oldTisPeriod = 2;
   } else {
     // Temmuz-Aralık dönemindeyiz → Aynı yılın 1. dönem (Ocak-Haziran) verisi
-    targetYear = currentYear;
-    targetPeriod = 1;
+    oldTisYear = currentYear;
+    oldTisPeriod = 1;
   }
 
-  // Bir sonraki dönem için veriler (yeni TİS)
-  let nextYear: number;
-  let nextPeriod: 1 | 2;
+  // Yeni TİS: Şu anki dönemin TİS'i
+  let newTisYear: number;
+  let newTisPeriod: 1 | 2;
   
   if (isFirstPeriod) {
-    // Şu an 1. dönemdeyiz → Yeni dönem: Aynı yılın 2. dönemi
-    nextYear = currentYear;
-    nextPeriod = 2;
+    // Şu an 1. dönemdeyiz → Yeni TİS: Aynı yılın 1. dönemi
+    newTisYear = currentYear;
+    newTisPeriod = 1;
   } else {
-    // Şu an 2. dönemdeyiz → Yeni dönem: Gelecek yılın 1. dönemi
-    nextYear = currentYear + 1;
-    nextPeriod = 1;
+    // Şu an 2. dönemdeyiz → Yeni TİS: Aynı yılın 2. dönemi
+    newTisYear = currentYear;
+    newTisPeriod = 2;
   }
 
   return {
@@ -96,8 +96,8 @@ export function getTisPeriodInfo() {
     lastAnnouncedMonth,
     lastAnnouncedYear,
     isFirstPeriod,
-    oldTis: { year: targetYear, period: targetPeriod },
-    newTis: { year: nextYear, period: nextPeriod },
+    oldTis: { year: oldTisYear, period: oldTisPeriod },
+    newTis: { year: newTisYear, period: newTisPeriod },
   };
 }
 

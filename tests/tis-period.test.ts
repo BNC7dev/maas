@@ -60,9 +60,9 @@ describe('TİS Period Logic', () => {
     expect(info.oldTis.year).toBe(2025);
     expect(info.oldTis.period).toBe(2);
     
-    // Yeni dönem: 2026/2
+    // Yeni dönem: Şu anki dönem 2026/1
     expect(info.newTis.year).toBe(2026);
-    expect(info.newTis.period).toBe(2);
+    expect(info.newTis.period).toBe(1);
     
     vi.useRealTimers();
   });
@@ -76,7 +76,7 @@ describe('TİS Period Logic', () => {
     expect(info.oldTis.year).toBe(2025);
     expect(info.oldTis.period).toBe(2);
     expect(info.newTis.year).toBe(2026);
-    expect(info.newTis.period).toBe(2);
+    expect(info.newTis.period).toBe(1);
     
     vi.useRealTimers();
   });
@@ -93,9 +93,9 @@ describe('TİS Period Logic', () => {
     expect(info.oldTis.year).toBe(2026);
     expect(info.oldTis.period).toBe(1);
     
-    // Yeni dönem: 2027/1
-    expect(info.newTis.year).toBe(2027);
-    expect(info.newTis.period).toBe(1);
+    // Yeni dönem: Şu anki dönem 2026/2
+    expect(info.newTis.year).toBe(2026);
+    expect(info.newTis.period).toBe(2);
     
     vi.useRealTimers();
   });
@@ -108,8 +108,8 @@ describe('TİS Period Logic', () => {
     expect(info.isFirstPeriod).toBe(false);
     expect(info.oldTis.year).toBe(2026);
     expect(info.oldTis.period).toBe(1);
-    expect(info.newTis.year).toBe(2027);
-    expect(info.newTis.period).toBe(1);
+    expect(info.newTis.year).toBe(2026);
+    expect(info.newTis.period).toBe(2);
     
     vi.useRealTimers();
   });
@@ -152,11 +152,11 @@ describe('Get Current TİS Rates', () => {
     
     const result = getCurrentTisRates(allRates);
     
-    // Ocak 2026 → Eski TİS: 2025/2, Yeni TİS: 2026/2
+    // Ocak 2026 → Eski TİS: 2025/2, Yeni TİS: 2026/1
     expect(result.oldTis).toBe(5);  // 2025/2
-    expect(result.newTis).toBe(7);  // 2026/2
+    expect(result.newTis).toBe(11); // 2026/1
     expect(result.oldTisLabel).toBe('2025/2');
-    expect(result.newTisLabel).toBe('2026/2');
+    expect(result.newTisLabel).toBe('2026/1');
     
     vi.useRealTimers();
   });
@@ -166,11 +166,11 @@ describe('Get Current TİS Rates', () => {
     
     const result = getCurrentTisRates(allRates);
     
-    // Temmuz 2026 → Eski TİS: 2026/1, Yeni TİS: 2027/1
+    // Temmuz 2026 → Eski TİS: 2026/1, Yeni TİS: 2026/2
     expect(result.oldTis).toBe(11); // 2026/1
-    expect(result.newTis).toBe(5);  // 2027/1
+    expect(result.newTis).toBe(7);  // 2026/2
     expect(result.oldTisLabel).toBe('2026/1');
-    expect(result.newTisLabel).toBe('2027/1');
+    expect(result.newTisLabel).toBe('2026/2');
     
     vi.useRealTimers();
   });

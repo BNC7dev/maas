@@ -131,16 +131,10 @@ export default function Home() {
         // Verileri input alanlarına doldur
         setMonths(data.data);
         setInflationSuccess(data.message);
-        
-        // Başarı mesajını 3 saniye sonra temizle
-        setTimeout(() => setInflationSuccess(null), 3000);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
       setInflationError(errorMessage);
-      
-      // Hata mesajını 5 saniye sonra temizle
-      setTimeout(() => setInflationError(null), 5000);
     } finally {
       setIsLoadingInflation(false);
     }
@@ -165,16 +159,10 @@ export default function Home() {
         setOldTis(data.data.oldTis);
         setNewTis(data.data.newTis);
         setTisSuccess(`${data.message} (${data.data.oldTisLabel} → ${data.data.newTisLabel})`);
-        
-        // Başarı mesajını 3 saniye sonra temizle
-        setTimeout(() => setTisSuccess(null), 3000);
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
       setTisError(errorMessage);
-      
-      // Hata mesajını 5 saniye sonra temizle
-      setTimeout(() => setTisError(null), 5000);
     } finally {
       setIsLoadingTis(false);
     }
@@ -378,7 +366,7 @@ export default function Home() {
                   ) : (
                     <>
                       <span>💎</span>
-                      Toplu Sözleşme'den Getir
+                      Toplu Sözleşme Oranlarını Getir
                     </>
                   )}
                 </button>

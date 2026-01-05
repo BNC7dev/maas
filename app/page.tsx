@@ -1,0 +1,412 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Card from '@/components/Card';
+import InputField from '@/components/InputField';
+import ShareButton from '@/components/ShareButton';
+import {
+  parsePercentInput,
+  computeCumulative,
+  computeInflationDiff,
+  computeTotalRaise,
+  computeSalary,
+} from '@/lib/calculator';
+import { formatPercent, formatFactor, formatCurrency } from '@/lib/formatters';
+import { getMonthNames } from '@/lib/tcmb';
+
+export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  const [monthNames, setMonthNames] = useState<string[]>([]);
+  const [months, setMonths] = useState<string[]>(['', '', '', '', '', '']);
+  const [oldTis, setOldTis] = useState('');
+  const [newTis, setNewTis] = useState('');
+  const [currentSalary, setCurrentSalary] = useState('');
+
+  const [cumulativePercent, setCumulativePercent] = useState<number | null>(null);
+  const [inflationDiffPercent, setInflationDiffPercent] = useState<number | null>(null);
+  const [totalFactor, setTotalFactor] = useState<number | null>(null);
+  const [totalPercent, setTotalPercent] = useState<number | null>(null);
+  const [newSalaryAmount, setNewSalaryAmount] = useState<number | null>(null);
+  const [increaseAmount, setIncreaseAmount] = useState<number | null>(null);
+
+  // TCMB veri çekme state'leri
+  const [isLoadingInflation, setIsLoadingInflation] = useState(false);
+  const [inflationError, setInflationError] = useState<string | null>(null);
+  const [inflationSuccess, setInflationSuccess] = useState<string | null>(null);
+
+  // Maaş parse fonksiyonu (yüzde değil, sayı için)
+  const parseSalaryInput = (input: string): number | null => {
+    if (!input || input.trim() === '') return null;
+    const normalized = input.replace(/[^\d.,-]/g, '').replace(',', '.');
+    const parsed = parseFloat(normalized);
+    if (isNaN(parsed) || parsed < 0) return null;
+    return parsed;
+  };
+
+  // Component mount kontrolü
+  useEffect(() => {
+    setMounted(true);
+    setMonthNames(getMonthNames());
+  }, []);
+
+  useEffect(() => {
+    const parsedMonths = months.map(parsePercentInput);
+    const cumResult = computeCumulative(parsedMonths);
+    
+    if (cumResult) {
+      setCumulativePercent(cumResult.percentage);
+      
+      const parsedOldTis = parsePercentInput(oldTis);
+      const diffResult = computeInflationDiff(cumResult.factor, parsedOldTis);
+      
+      if (diffResult) {
+        setInflationDiffPercent(diffResult.percentage);
+        
+        const parsedNewTis = parsePercentInput(newTis);
+        const raiseResult = computeTotalRaise(diffResult.factor, parsedNewTis);
+        
+        if (raiseResult) {
+          setTotalFactor(raiseResult.factor);
+          setTotalPercent(raiseResult.percentage);
+          
+          const parsedSalary = parseSalaryInput(currentSalary);
+          const salaryResult = computeSalary(parsedSalary, raiseResult.factor);
+          
+          if (salaryResult) {
+            setNewSalaryAmount(salaryResult.newSalary);
+            setIncreaseAmount(salaryResult.increase);
+          } else {
+            setNewSalaryAmount(null);
+            setIncreaseAmount(null);
+          }
+        } else {
+          setTotalFactor(null);
+          setTotalPercent(null);
+          setNewSalaryAmount(null);
+          setIncreaseAmount(null);
+        }
+      } else {
+        setInflationDiffPercent(null);
+        setTotalFactor(null);
+        setTotalPercent(null);
+        setNewSalaryAmount(null);
+        setIncreaseAmount(null);
+      }
+    } else {
+      setCumulativePercent(null);
+      setInflationDiffPercent(null);
+      setTotalFactor(null);
+      setTotalPercent(null);
+      setNewSalaryAmount(null);
+      setIncreaseAmount(null);
+    }
+  }, [months, oldTis, newTis, currentSalary]);
+
+  const handleMonthChange = (index: number, value: string) => {
+    const newMonths = [...months];
+    newMonths[index] = value;
+    setMonths(newMonths);
+  };
+
+  // TCMB'den enflasyon verilerini çek
+  const fetchInflationData = async () => {
+    setIsLoadingInflation(true);
+    setInflationError(null);
+    setInflationSuccess(null);
+
+    try {
+      const response = await fetch('/api/fetch-inflation');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Veri çekilemedi');
+      }
+
+      if (data.success && data.data) {
+        // Verileri input alanlarına doldur
+        setMonths(data.data);
+        setInflationSuccess(data.message);
+        
+        // Başarı mesajını 3 saniye sonra temizle
+        setTimeout(() => setInflationSuccess(null), 3000);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      setInflationError(errorMessage);
+      
+      // Hata mesajını 5 saniye sonra temizle
+      setTimeout(() => setInflationError(null), 5000);
+    } finally {
+      setIsLoadingInflation(false);
+    }
+  };
+
+  // Hydration hatasını önlemek için client-side render bekle
+  if (!mounted) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-4 md:py-8 px-3 md:px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-4 md:py-8 px-3 md:px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Modern Header */}
+        <header className="mb-6 md:mb-12">
+          <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-4 md:p-8">
+            {/* Dekoratif arka plan efektleri - sadece desktop'ta görünür */}
+            <div className="hidden md:block absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))]" />
+            <div className="hidden md:block absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+            <div className="hidden md:block absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
+            
+            <div className="relative">
+              <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center text-3xl md:text-4xl shadow-lg border border-white/30 flex-shrink-0">
+                  💼
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
+                    Memur Maaş Zammı Hesaplama
+                  </h1>
+                  <p className="text-blue-100 text-sm md:text-lg mt-0.5 md:mt-1">
+                    Kümülatif yöntemle hassas hesaplama
+                  </p>
+                </div>
+              </div>
+              
+              {/* Bilgi badge'leri - mobilde daha kompakt */}
+              <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-6">
+                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
+                  <span>✨</span>
+                  Otomatik
+                </span>
+                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
+                  <span>🏦</span>
+                  TCMB
+                </span>
+                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
+                  <span>🔒</span>
+                  Güvenli
+                </span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
+          <div className="space-y-4 md:space-y-6">
+            {/* Aylık Enflasyon Kartı */}
+            <Card title="Aylık enflasyon verileri" icon={<span className="text-xl">📈</span>}>
+              <div className="mb-4">
+                <p className="text-sm text-gray-500">
+                  TÜİK tarafından açıklanan aylık oranları giriniz.
+                </p>
+              </div>
+              
+              {/* Başarı mesajı */}
+              {inflationSuccess && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+                  <span className="text-green-600">✓</span>
+                  <span className="text-sm text-green-800">{inflationSuccess}</span>
+                </div>
+              )}
+              
+              {/* Hata mesajı */}
+              {inflationError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+                  <span className="text-red-600">⚠</span>
+                  <span className="text-sm text-red-800">{inflationError}</span>
+                </div>
+              )}
+              <div className="space-y-3 mb-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {months.map((month, index) => (
+                    <InputField
+                      key={index}
+                      id={`month-${index}`}
+                      label={monthNames[index]}
+                      value={month}
+                      onChange={(value) => handleMonthChange(index, value)}
+                      placeholder="örn: 2,50"
+                      suffix="%"
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              {/* TCMB Butonu - Aşağıya taşındı */}
+              <button
+                onClick={fetchInflationData}
+                disabled={isLoadingInflation}
+                className="w-full px-4 py-3 bg-success hover:bg-success/90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 mb-4"
+                title="TCMB'den güncel enflasyon verilerini getir (1 dakikada bir)"
+              >
+                {isLoadingInflation ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Yüklüyor...
+                  </>
+                ) : (
+                  <>
+                    <span>🏦</span>
+                    TCMB'den Getir
+                  </>
+                )}
+              </button>
+              
+              {cumulativePercent !== null && (
+                <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">
+                    Toplam kümülatif enflasyon
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    {formatPercent(cumulativePercent)}
+                  </span>
+                </div>
+              )}
+            </Card>
+
+            {/* TİS Oranları Kartı */}
+            <Card title="Toplu sözleşme oranları" icon={<span className="text-xl">💎</span>}>
+              <div className="space-y-4">
+                <div>
+                  <InputField
+                    id="old-tis"
+                    label="Önceki dönem sözleşme"
+                    value={oldTis}
+                    onChange={setOldTis}
+                    placeholder="örn: 5,00"
+                    suffix="%"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Mevcut maaşınızın hesaplandığı dönemdeki TİS oranı.
+                  </p>
+                </div>
+                <div>
+                  <InputField
+                    id="new-tis"
+                    label="Yeni dönem sözleşme"
+                    value={newTis}
+                    onChange={setNewTis}
+                    placeholder="örn: 11,00"
+                    suffix="%"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Yeni maaş dönemine uygulanacak TİS oranı.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          <div className="space-y-4 md:space-y-6">
+            {/* Mevcut Maaş Kartı */}
+            <Card className="bg-gradient-to-br from-gray-800 to-gray-900 text-white border-0">
+              <div className="space-y-2">
+                <label htmlFor="current-salary" className="block text-sm text-gray-300">
+                  Mevcut net maaşınız
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400">
+                    ₺
+                  </span>
+                  <input
+                    id="current-salary"
+                    type="text"
+                    value={currentSalary}
+                    onChange={(e) => setCurrentSalary(e.target.value)}
+                    placeholder="örn: 53000"
+                    className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    aria-label="Mevcut net maaşınız"
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Hesaplama Sonuçları Kartı */}
+            <Card title="Hesaplama sonuçları" icon={<span className="text-xl">📊</span>}>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-500 mb-1">Enflasyon farkı</div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {formatPercent(inflationDiffPercent)}
+                  </div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-xs text-gray-500 mb-1">Artış çarpanı</div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {formatFactor(totalFactor)}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 bg-primary/10 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-success font-semibold mb-1">Oluşan Zam Oranı</div>
+                    <div className="text-sm text-gray-500">Kümülatif yüzde</div>
+                  </div>
+                  <div className="text-3xl font-bold text-success">
+                    {formatPercent(totalPercent)}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Maaş Detayı Kartı */}
+            <Card title="Özet tablo" icon={<span className="text-xl">📋</span>}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-600">Eski maaş</span>
+                  <span className="font-semibold text-gray-800">
+                    {currentSalary ? formatCurrency(parseSalaryInput(currentSalary)) : '—'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-gray-600 flex items-center gap-1">
+                    <span className="text-success">▲</span>
+                    Artış miktarı
+                  </span>
+                  <span className="font-semibold text-success">
+                    + {formatCurrency(increaseAmount)}
+                  </span>
+                </div>
+                <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 mt-4">
+                  <div className="text-xs text-gray-500 mb-1">Yeni zammlı maaş</div>
+                  <div className="text-4xl font-bold text-gray-900">
+                    {newSalaryAmount !== null ? formatCurrency(newSalaryAmount) : '—'}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        <footer className="mt-8 md:mt-12 text-center text-sm text-gray-500 space-y-2">
+          <p>
+            © 2025 dev by{' '}
+            <a 
+              href="https://bnc7.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="font-bold text-red-600 hover:text-red-700 transition-colors"
+            >
+              BNC7
+            </a>
+          </p>
+          <p className="text-xs text-gray-400">
+            Bu araç bilgilendirme amaçlıdır. Resmi hesaplamalar için yetkili kurumlarınıza başvurunuz.
+          </p>
+        </footer>
+      </div>
+    </main>
+  );
+}

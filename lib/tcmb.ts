@@ -1,0 +1,184 @@
+/**
+ * TCMB Enflasyon Veri Çekme ve Dönem Hesaplama Mantığı
+ */
+
+export interface InflationData {
+  month: number; // 1-12
+  year: number;
+  rate: number; // Aylık % değişim
+}
+
+/**
+ * Hangi dönemdeyiz ve hangi ayların verisi mevcut?
+ * 1. Dönem (Ocak-Haziran): Son 6 ay = Temmuz-Aralık (geçen yıl)
+ * 2. Dönem (Temmuz-Aralık): Son 6 ay = Ocak-Haziran (aynı yıl)
+ * Not: Enflasyon verileri 1 ay gecikmeli açıklanır
+ */
+export function getCurrentPeriodInfo() {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1; // 1-12
+  const currentYear = now.getFullYear();
+
+  // Son açıklanan ay (1 ay geriden gelir)
+  let lastAnnouncedMonth = currentMonth - 1;
+  let lastAnnouncedYear = currentYear;
+  
+  if (lastAnnouncedMonth === 0) {
+    lastAnnouncedMonth = 12;
+    lastAnnouncedYear = currentYear - 1;
+  }
+
+  // Hangi dönemdeyiz?
+  const isFirstPeriod = currentMonth >= 1 && currentMonth <= 6; // Ocak-Haziran
+  const isSecondPeriod = currentMonth >= 7 && currentMonth <= 12; // Temmuz-Aralık
+
+  // Dönem aylarını belirle (son 6 ay)
+  let periodMonths: number[];
+  let periodStartMonth: number;
+  let dataYear: number;
+  
+  if (isFirstPeriod) {
+    // Ocak-Haziran dönemindeyiz → Son 6 ay: Temmuz-Aralık (geçen yıl)
+    periodMonths = [7, 8, 9, 10, 11, 12];
+    periodStartMonth = 7;
+    dataYear = currentYear - 1;
+  } else {
+    // Temmuz-Aralık dönemindeyiz → Son 6 ay: Ocak-Haziran (aynı yıl)
+    periodMonths = [1, 2, 3, 4, 5, 6];
+    periodStartMonth = 1;
+    dataYear = currentYear;
+  }
+
+  // Hangi ayların verisi açıklandı?
+  const availableMonths: number[] = [];
+  const unavailableMonths: number[] = [];
+
+  for (const month of periodMonths) {
+    // Veri yılı ve ayına göre kontrol et
+    if (dataYear < lastAnnouncedYear || 
+        (dataYear === lastAnnouncedYear && month <= lastAnnouncedMonth)) {
+      availableMonths.push(month);
+    } else {
+      unavailableMonths.push(month);
+    }
+  }
+
+  return {
+    currentMonth,
+    currentYear,
+    lastAnnouncedMonth,
+    lastAnnouncedYear,
+    isFirstPeriod,
+    isSecondPeriod,
+    periodMonths,
+    periodStartMonth,
+    availableMonths,
+    unavailableMonths,
+    dataYear,
+  };
+}
+
+/**
+ * TCMB web sayfasından enflasyon verilerini parse et
+ */
+export function parseTCMBData(html: string): InflationData[] {
+  const data: InflationData[] = [];
+  
+  // TCMB'nin HTML formatı:
+  // <td>MM-YYYY</td>
+  // <td>YY.YY</td>  (Yıllık)
+  // <td>A.AA</td>   (Aylık - bunu alıyoruz)
+  
+  // Önce tüm <tr> satırlarını bul
+  const rowRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
+  let rowMatch;
+
+  while ((rowMatch = rowRegex.exec(html)) !== null) {
+    const rowContent = rowMatch[1];
+    
+    // Tarih formatını bul: MM-YYYY
+    const dateMatch = rowContent.match(/(\d{1,2})-(\d{4})/);
+    if (!dateMatch) continue;
+    
+    const month = parseInt(dateMatch[1]);
+    const year = parseInt(dateMatch[2]);
+    
+    // Aynı satırda tüm <td> hücrelerini bul ve içeriğini çıkar
+    const cellRegex = /<td[^>]*>([^<]+)<\/td>/g;
+    const cells: string[] = [];
+    let cellMatch;
+    
+    while ((cellMatch = cellRegex.exec(rowContent)) !== null) {
+      cells.push(cellMatch[1].trim());
+    }
+    
+    if (cells.length < 3) continue;
+    
+    // 3. hücre aylık değişimi içerir (index 2)
+    const monthlyRate = cells[2];
+    const rateStr = monthlyRate.replace(',', '.');
+    const rate = parseFloat(rateStr);
+
+    if (!isNaN(month) && !isNaN(year) && !isNaN(rate) && month >= 1 && month <= 12) {
+      data.push({ month, year, rate });
+    }
+  }
+
+  return data;
+}
+
+/**
+ * Dönem için gerekli 6 aylık enflasyon verilerini getir
+ */
+export function getPeriodInflationData(allData: InflationData[]): string[] {
+  const periodInfo = getCurrentPeriodInfo();
+  const result: string[] = ['', '', '', '', '', ''];
+
+  // Verileri doldur
+  periodInfo.periodMonths.forEach((month, index) => {
+    const monthData = allData.find(
+      d => d.month === month && d.year === periodInfo.dataYear
+    );
+
+    if (monthData) {
+      result[index] = monthData.rate.toString().replace('.', ',');
+    } else if (periodInfo.unavailableMonths.includes(month)) {
+      // Henüz açıklanmamış → 1 yaz
+      result[index] = '1';
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Ay isimlerini döndür (sabit format - dönem bazlı)
+ * 1. Dönem (Ocak-Haziran): OCAK/TEMMUZ, ŞUBAT/AĞUSTOS, ...
+ * 2. Dönem (Temmuz-Aralık): TEMMUZ/OCAK, AĞUSTOS/ŞUBAT, ...
+ */
+export function getMonthNames(): string[] {
+  const periodInfo = getCurrentPeriodInfo();
+
+  // Dönem ayları için karşılık gelen "bugün" aylarını belirle
+  if (periodInfo.isFirstPeriod) {
+    // Ocak-Haziran dönemi: Ocak/Temmuz, Şubat/Ağustos, ... (bugün/geçmiş)
+    return [
+      'OCAK/TEMMUZ',
+      'ŞUBAT/AĞUSTOS',
+      'MART/EYLÜL',
+      'NİSAN/EKİM',
+      'MAYIS/KASIM',
+      'HAZİRAN/ARALIK',
+    ];
+  } else {
+    // Temmuz-Aralık dönemi: Temmuz/Ocak, Ağustos/Şubat, ... (bugün/geçmiş)
+    return [
+      'TEMMUZ/OCAK',
+      'AĞUSTOS/ŞUBAT',
+      'EYLÜL/MART',
+      'EKİM/NİSAN',
+      'KASIM/MAYIS',
+      'ARALIK/HAZİRAN',
+    ];
+  }
+}

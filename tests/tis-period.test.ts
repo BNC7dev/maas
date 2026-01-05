@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { parseTisData, getTisPeriodInfo, findTisRate, getCurrentTisRates } from '../lib/tis';
 
-describe('TİS Data Parsing', () => {
-  it('should parse TİS data correctly from text', () => {
+describe('Toplu Sözleşme Data Parsing', () => {
+  it('should parse Toplu Sözleşme data correctly from text', () => {
     const text = `# Comment
 2024/1=15
 2024/2=10
@@ -46,7 +46,7 @@ invalid line
   });
 });
 
-describe('TİS Period Logic', () => {
+describe('Toplu Sözleşme Period Logic', () => {
   it('should correctly determine period for January (first period)', () => {
     vi.setSystemTime(new Date('2026-01-15'));
     
@@ -115,7 +115,7 @@ describe('TİS Period Logic', () => {
   });
 });
 
-describe('TİS Rate Finding', () => {
+describe('Toplu Sözleşme Rate Finding', () => {
   const sampleRates = [
     { year: 2024, period: 1 as const, rate: 15 },
     { year: 2024, period: 2 as const, rate: 10 },
@@ -136,7 +136,7 @@ describe('TİS Rate Finding', () => {
   });
 });
 
-describe('Get Current TİS Rates', () => {
+describe('Get Current Toplu Sözleşme Rates', () => {
   const allRates = [
     { year: 2024, period: 1 as const, rate: 15 },
     { year: 2024, period: 2 as const, rate: 10 },
@@ -152,7 +152,7 @@ describe('Get Current TİS Rates', () => {
     
     const result = getCurrentTisRates(allRates);
     
-    // Ocak 2026 → Eski TİS: 2025/2, Yeni TİS: 2026/1
+    // Ocak 2026 → Eski Toplu Sözleşme: 2025/2, Yeni Toplu Sözleşme: 2026/1
     expect(result.oldTis).toBe(5);  // 2025/2
     expect(result.newTis).toBe(11); // 2026/1
     expect(result.oldTisLabel).toBe('2025/2');
@@ -166,7 +166,7 @@ describe('Get Current TİS Rates', () => {
     
     const result = getCurrentTisRates(allRates);
     
-    // Temmuz 2026 → Eski TİS: 2026/1, Yeni TİS: 2026/2
+    // Temmuz 2026 → Eski Toplu Sözleşme: 2026/1, Yeni Toplu Sözleşme: 2026/2
     expect(result.oldTis).toBe(11); // 2026/1
     expect(result.newTis).toBe(7);  // 2026/2
     expect(result.oldTisLabel).toBe('2026/1');

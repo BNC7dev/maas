@@ -5,7 +5,7 @@ import { join } from 'path';
 
 export async function GET() {
   try {
-    // TİS dosyasını direkt dosya sisteminden oku
+    // Toplu Sözleşme dosyasını direkt dosya sisteminden oku
     const filePath = join(process.cwd(), 'public', 'toplusozlesmezamoranlari.txt');
     const text = await readFile(filePath, 'utf-8');
     
@@ -13,14 +13,14 @@ export async function GET() {
     const allRates = parseTisData(text);
 
     if (allRates.length === 0) {
-      throw new Error('TİS verileri parse edilemedi');
+      throw new Error('Toplu Sözleşme verileri parse edilemedi');
     }
 
-    // Mevcut dönem için uygun TİS oranlarını al
+    // Mevcut dönem için uygun Toplu Sözleşme oranlarını al
     const { oldTis, newTis, oldTisLabel, newTisLabel } = getCurrentTisRates(allRates);
 
     if (oldTis === null || newTis === null) {
-      throw new Error('İlgili dönem için TİS verisi bulunamadı');
+      throw new Error('İlgili dönem için Toplu Sözleşme verisi bulunamadı');
     }
 
     return NextResponse.json({
@@ -31,14 +31,14 @@ export async function GET() {
         oldTisLabel,
         newTisLabel,
       },
-      message: 'TİS oranları başarıyla alındı',
+      message: 'Toplu Sözleşme oranları başarıyla alındı',
     });
 
   } catch (error) {
-    console.error('TİS veri çekme hatası:', error);
+    console.error('Toplu Sözleşme veri çekme hatası:', error);
     return NextResponse.json(
       { 
-        error: 'TİS veri çekme hatası',
+        error: 'Toplu Sözleşme veri çekme hatası',
         message: error instanceof Error ? error.message : 'Bilinmeyen hata',
       },
       { status: 500 }

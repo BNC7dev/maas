@@ -34,7 +34,7 @@ export default function Home() {
   const [inflationError, setInflationError] = useState<string | null>(null);
   const [inflationSuccess, setInflationSuccess] = useState<string | null>(null);
 
-  // TİS veri çekme state'leri
+  // Toplu Sözleşme veri çekme state'leri
   const [isLoadingTis, setIsLoadingTis] = useState(false);
   const [tisError, setTisError] = useState<string | null>(null);
   const [tisSuccess, setTisSuccess] = useState<string | null>(null);
@@ -146,7 +146,7 @@ export default function Home() {
     }
   };
 
-  // TİS oranlarını çek
+  // Toplu Sözleşme oranlarını çek
   const fetchTisData = async () => {
     setIsLoadingTis(true);
     setTisError(null);
@@ -157,11 +157,11 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'TİS verileri çekilemedi');
+        throw new Error(data.message || 'Toplu Sözleşme verileri çekilemedi');
       }
 
       if (data.success && data.data) {
-        // TİS verilerini input alanlarına doldur
+        // Toplu Sözleşme verilerini input alanlarına doldur
         setOldTis(data.data.oldTis);
         setNewTis(data.data.newTis);
         setTisSuccess(`${data.message} (${data.data.oldTisLabel} → ${data.data.newTisLabel})`);
@@ -314,7 +314,7 @@ export default function Home() {
               )}
             </Card>
 
-            {/* TİS Oranları Kartı */}
+            {/* Toplu Sözleşme Oranları Kartı */}
             <Card title="Toplu sözleşme oranları" icon={<span className="text-xl">💎</span>}>
               {/* Başarı mesajı */}
               {tisSuccess && (
@@ -343,7 +343,7 @@ export default function Home() {
                     suffix="%"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Mevcut maaşınızın hesaplandığı dönemdeki TİS oranı.
+                    Mevcut maaşınızın hesaplandığı dönemdeki Toplu Sözleşme oranı.
                   </p>
                 </div>
                 <div>
@@ -356,16 +356,16 @@ export default function Home() {
                     suffix="%"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Yeni maaş dönemine uygulanacak TİS oranı.
+                    Yeni maaş dönemine uygulanacak Toplu Sözleşme oranı.
                   </p>
                 </div>
                 
-                {/* TİS Butonu */}
+                {/* Toplu Sözleşme Butonu */}
                 <button
                   onClick={fetchTisData}
                   disabled={isLoadingTis}
                   className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                  title="TİS oranlarını otomatik doldur"
+                  title="Toplu Sözleşme oranlarını otomatik doldur"
                 >
                   {isLoadingTis ? (
                     <>
@@ -378,7 +378,7 @@ export default function Home() {
                   ) : (
                     <>
                       <span>💎</span>
-                      TİS'den Getir
+                      Toplu Sözleşme'den Getir
                     </>
                   )}
                 </button>

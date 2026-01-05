@@ -1,5 +1,5 @@
 /**
- * Toplu İş Sözleşmesi (TİS) Zam Oranları Yönetimi
+ * Toplu İş Sözleşmesi Zam Oranları Yönetimi
  * 
  * Dönem mantığı TCMB ile aynı:
  * - 1. Dönem (Ocak-Haziran): Önceki yılın 2. dönem (Temmuz-Aralık) verileri
@@ -14,7 +14,7 @@ export interface TisRate {
 }
 
 /**
- * TİS txt dosyasını parse et
+ * Toplu Sözleşme txt dosyasını parse et
  */
 export function parseTisData(text: string): TisRate[] {
   const rates: TisRate[] = [];
@@ -62,7 +62,7 @@ export function getTisPeriodInfo() {
   // Hangi dönemdeyiz?
   const isFirstPeriod = currentMonth >= 1 && currentMonth <= 6; // Ocak-Haziran
   
-  // Eski TİS: Mevcut maaşımızın hesaplandığı dönem (önceki dönem)
+  // Eski Toplu Sözleşme: Mevcut maaşımızın hesaplandığı dönem (önceki dönem)
   let oldTisYear: number;
   let oldTisPeriod: 1 | 2;
   
@@ -76,16 +76,16 @@ export function getTisPeriodInfo() {
     oldTisPeriod = 1;
   }
 
-  // Yeni TİS: Şu anki dönemin TİS'i
+  // Yeni Toplu Sözleşme: Şu anki dönemin oranı
   let newTisYear: number;
   let newTisPeriod: 1 | 2;
   
   if (isFirstPeriod) {
-    // Şu an 1. dönemdeyiz → Yeni TİS: Aynı yılın 1. dönemi
+    // Şu an 1. dönemdeyiz → Yeni Toplu Sözleşme: Aynı yılın 1. dönemi
     newTisYear = currentYear;
     newTisPeriod = 1;
   } else {
-    // Şu an 2. dönemdeyiz → Yeni TİS: Aynı yılın 2. dönemi
+    // Şu an 2. dönemdeyiz → Yeni Toplu Sözleşme: Aynı yılın 2. dönemi
     newTisYear = currentYear;
     newTisPeriod = 2;
   }
@@ -102,7 +102,7 @@ export function getTisPeriodInfo() {
 }
 
 /**
- * Belirli bir yıl ve dönem için TİS oranını bul
+ * Belirli bir yıl ve dönem için Toplu Sözleşme oranını bul
  */
 export function findTisRate(rates: TisRate[], year: number, period: 1 | 2): number | null {
   const found = rates.find(r => r.year === year && r.period === period);

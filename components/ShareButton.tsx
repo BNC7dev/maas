@@ -25,7 +25,7 @@ export default function ShareButton({ data }: ShareButtonProps) {
     return `🧮 Maaş Zammı Hesaplama Sonuçları
 
 📈 Aylık Enflasyon: ${monthsText}
-💎 TİS Oranları: Önceki ${data.oldTis}%, Yeni ${data.newTis}%
+💎 Toplu Sözleşme Oranları: Önceki ${data.oldTis}%, Yeni ${data.newTis}%
 📊 Toplam Artış: ${data.totalPercent?.toFixed(2) || '—'}%
 💰 Yeni Maaş: ₺${data.newSalary?.toFixed(2) || '—'}
 📈 Artış Miktarı: ₺${data.increase?.toFixed(2) || '—'}

@@ -16,6 +16,7 @@ import { getMonthNames } from '@/lib/tcmb';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
+  const [visitorCount, setVisitorCount] = useState(0);
   const [monthNames, setMonthNames] = useState<string[]>([]);
   const [months, setMonths] = useState<string[]>(['', '', '', '', '', '']);
   const [oldTis, setOldTis] = useState('');
@@ -52,6 +53,12 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     setMonthNames(getMonthNames());
+    
+    // Ziyaretçi sayısını güncelle
+    const currentCount = parseInt(localStorage.getItem('visitorCount') || '0');
+    const newCount = currentCount + 1;
+    localStorage.setItem('visitorCount', newCount.toString());
+    setVisitorCount(newCount);
   }, []);
 
   useEffect(() => {
@@ -457,6 +464,16 @@ export default function Home() {
         </div>
 
         <footer className="mt-8 md:mt-12 text-center text-sm text-gray-500 space-y-2">
+          {/* Ziyaretçi Sayaç */}
+          <div className="mb-4 pb-4 border-b border-gray-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full">
+              <span className="text-blue-600 text-lg">👥</span>
+              <span className="text-gray-600 text-sm">
+                Toplam Ziyaret: <span className="font-bold text-blue-600">{visitorCount.toLocaleString('tr-TR')}</span>
+              </span>
+            </div>
+          </div>
+          
           <p>
             © 2025 dev by{' '}
             <a 

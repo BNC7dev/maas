@@ -446,8 +446,8 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 mt-4">
-                  <div className="text-xs text-gray-500 mb-1">Yeni zammlı maaş</div>
-                  <div className="text-4xl font-bold text-gray-900">
+                  <div className="text-base text-gray-500 mb-2 font-medium">Yeni zammlı maaş</div>
+                  <div className={`text-6xl font-bold ${newSalaryAmount !== null ? 'text-success animate-pulse' : 'text-gray-900'}`}>
                     {newSalaryAmount !== null ? formatCurrency(newSalaryAmount) : '—'}
                   </div>
                 </div>

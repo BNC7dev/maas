@@ -1,18 +1,13 @@
 import { NextResponse } from 'next/server';
 import { parseTisData, getCurrentTisRates } from '@/lib/tis';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 export async function GET() {
   try {
-    // TİS dosyasını oku
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/toplusozlesmezamoranlari.txt`, {
-      cache: 'no-store',
-    });
-
-    if (!response.ok) {
-      throw new Error('TİS dosyası okunamadı');
-    }
-
-    const text = await response.text();
+    // TİS dosyasını direkt dosya sisteminden oku
+    const filePath = join(process.cwd(), 'public', 'toplusozlesmezamoranlari.txt');
+    const text = await readFile(filePath, 'utf-8');
     
     // Verileri parse et
     const allRates = parseTisData(text);

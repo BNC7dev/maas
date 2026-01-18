@@ -57,26 +57,26 @@ export default function Home() {
   useEffect(() => {
     const parsedMonths = months.map(parsePercentInput);
     const cumResult = computeCumulative(parsedMonths);
-    
+
     if (cumResult) {
       setCumulativePercent(cumResult.percentage);
-      
+
       const parsedOldTis = parsePercentInput(oldTis);
       const diffResult = computeInflationDiff(cumResult.factor, parsedOldTis);
-      
+
       if (diffResult) {
         setInflationDiffPercent(diffResult.percentage);
-        
+
         const parsedNewTis = parsePercentInput(newTis);
         const raiseResult = computeTotalRaise(diffResult.factor, parsedNewTis);
-        
+
         if (raiseResult) {
           setTotalFactor(raiseResult.factor);
           setTotalPercent(raiseResult.percentage);
-          
+
           const parsedSalary = parseSalaryInput(currentSalary);
           const salaryResult = computeSalary(parsedSalary, raiseResult.factor);
-          
+
           if (salaryResult) {
             setNewSalaryAmount(salaryResult.newSalary);
             setIncreaseAmount(salaryResult.increase);
@@ -191,7 +191,7 @@ export default function Home() {
             <div className="hidden md:block absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))]" />
             <div className="hidden md:block absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
             <div className="hidden md:block absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
-            
+
             <div className="relative">
               <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center text-3xl md:text-4xl shadow-lg border border-white/30 flex-shrink-0">
@@ -206,7 +206,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              
+
               {/* Bilgi badge'leri - mobilde daha kompakt */}
               <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-6">
                 <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
@@ -236,7 +236,7 @@ export default function Home() {
                   TÜİK tarafından açıklanan aylık oranları giriniz.
                 </p>
               </div>
-              
+
               {/* Başarı mesajı */}
               {inflationSuccess && (
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
@@ -244,7 +244,7 @@ export default function Home() {
                   <span className="text-sm text-green-800">{inflationSuccess}</span>
                 </div>
               )}
-              
+
               {/* Hata mesajı */}
               {inflationError && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
@@ -267,7 +267,7 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              
+
               {/* TCMB Butonu - Aşağıya taşındı */}
               <button
                 onClick={fetchInflationData}
@@ -290,7 +290,7 @@ export default function Home() {
                   </>
                 )}
               </button>
-              
+
               {cumulativePercent !== null && (
                 <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
@@ -312,7 +312,7 @@ export default function Home() {
                   <span className="text-sm text-green-800">{tisSuccess}</span>
                 </div>
               )}
-              
+
               {/* Hata mesajı */}
               {tisError && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
@@ -320,7 +320,7 @@ export default function Home() {
                   <span className="text-sm text-red-800">{tisError}</span>
                 </div>
               )}
-              
+
               <div className="space-y-4">
                 <div>
                   <InputField
@@ -348,7 +348,7 @@ export default function Home() {
                     Yeni maaş dönemine uygulanacak Toplu Sözleşme oranı.
                   </p>
                 </div>
-                
+
                 {/* Toplu Sözleşme Butonu */}
                 <button
                   onClick={fetchTisData}
@@ -384,16 +384,17 @@ export default function Home() {
                   Mevcut net maaşınız
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl text-gray-400">
+                  <span className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-xl md:text-2xl text-gray-400">
                     ₺
                   </span>
                   <input
                     id="current-salary"
                     type="text"
+                    inputMode="numeric"
                     value={currentSalary}
                     onChange={(e) => setCurrentSalary(e.target.value)}
                     placeholder="örn: 53000"
-                    className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30"
+                    className="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-xl md:text-2xl lg:text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30 truncate"
                     aria-label="Mevcut net maaşınız"
                   />
                 </div>
@@ -447,9 +448,9 @@ export default function Home() {
                     + {formatCurrency(increaseAmount)}
                   </span>
                 </div>
-                <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-4 mt-4">
-                  <div className="text-base text-gray-500 mb-2 font-medium">Yeni zammlı maaş</div>
-                  <div className={`text-6xl font-bold ${newSalaryAmount !== null ? 'text-success animate-pulse' : 'text-gray-900'}`}>
+                <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg p-3 md:p-4 mt-4 overflow-hidden">
+                  <div className="text-sm md:text-base text-gray-500 mb-2 font-medium">Yeni zammlı maaş</div>
+                  <div className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold break-all ${newSalaryAmount !== null ? 'text-success animate-pulse' : 'text-gray-900'}`}>
                     {newSalaryAmount !== null ? formatCurrency(newSalaryAmount) : '—'}
                   </div>
                 </div>
@@ -461,9 +462,9 @@ export default function Home() {
         <footer className="mt-8 md:mt-12 text-center text-sm text-gray-500 space-y-2">
           <p>
             © 2025 dev by{' '}
-            <a 
-              href="https://bnc7.dev" 
-              target="_blank" 
+            <a
+              href="https://bnc7.dev"
+              target="_blank"
               rel="noopener noreferrer"
               className="font-bold text-red-600 hover:text-red-700 transition-colors"
             >

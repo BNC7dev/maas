@@ -379,11 +379,11 @@ export default function Home() {
           <div className="space-y-4 md:space-y-6">
             {/* Mevcut Maaş Kartı */}
             <Card className="bg-gradient-to-br from-gray-800 to-gray-900 text-white border-0 overflow-hidden">
-              <div className="space-y-2">
+              <div className="space-y-2 overflow-hidden">
                 <label htmlFor="current-salary" className="block text-sm text-gray-300">
                   Mevcut net maaşınız
                 </label>
-                <div className="relative overflow-hidden">
+                <div className="relative w-full overflow-hidden">
                   <span className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-xl md:text-2xl text-gray-400 z-10">
                     ₺
                   </span>
@@ -391,11 +391,11 @@ export default function Home() {
                     id="current-salary"
                     type="text"
                     inputMode="numeric"
+                    maxLength={15}
                     value={currentSalary}
                     onChange={(e) => setCurrentSalary(e.target.value)}
                     placeholder="örn: 53000"
-                    className="w-full min-w-0 pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-2xl md:text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30"
-                    style={{ textOverflow: 'ellipsis' }}
+                    className="w-full max-w-full min-w-0 pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-2xl md:text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30 box-border"
                     aria-label="Mevcut net maaşınız"
                   />
                 </div>

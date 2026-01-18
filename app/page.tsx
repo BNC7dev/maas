@@ -39,13 +39,54 @@ export default function Home() {
   const [tisError, setTisError] = useState<string | null>(null);
   const [tisSuccess, setTisSuccess] = useState<string | null>(null);
 
-  // Maaş parse fonksiyonu (yüzde değil, sayı için)
+  // Maaş parse fonksiyonu (Türk formatını destekler: 50.000,00)
   const parseSalaryInput = (input: string): number | null => {
     if (!input || input.trim() === '') return null;
-    const normalized = input.replace(/[^\d.,-]/g, '').replace(',', '.');
+    // Türk formatı: nokta binlik ayraç, virgül ondalık ayraç
+    // Önce noktaları kaldır (binlik ayraç), sonra virgülü noktaya çevir
+    const normalized = input.replace(/\./g, '').replace(',', '.');
     const parsed = parseFloat(normalized);
     if (isNaN(parsed) || parsed < 0) return null;
     return parsed;
+  };
+
+  // Maaş formatla fonksiyonu (Türk Lirası formatı: 50.000,00)
+  const formatSalaryInput = (value: string): string => {
+    // Sadece rakam ve virgül/nokta karakterlerini al
+    let cleaned = value.replace(/[^\d,]/g, '');
+
+    // Eğer boşsa boş döndür
+    if (!cleaned) return '';
+
+    // Virgül varsa, ondalık kısım olarak ayır
+    let integerPart = cleaned;
+    let decimalPart = '';
+
+    const commaIndex = cleaned.indexOf(',');
+    if (commaIndex !== -1) {
+      integerPart = cleaned.substring(0, commaIndex);
+      decimalPart = cleaned.substring(commaIndex + 1, commaIndex + 3); // Max 2 ondalık
+    }
+
+    // Başındaki sıfırları kaldır (tek sıfır hariç)
+    integerPart = integerPart.replace(/^0+/, '') || '0';
+
+    // Binlik ayraç ekle (noktalarla)
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    // Virgül varsa ondalık kısmı ekle
+    if (commaIndex !== -1) {
+      return formattedInteger + ',' + decimalPart;
+    }
+
+    return formattedInteger;
+  };
+
+  // Input değişiklik handler'ı
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatSalaryInput(rawValue);
+    setCurrentSalary(formatted);
   };
 
   // Component mount kontrolü
@@ -390,11 +431,11 @@ export default function Home() {
                   <input
                     id="current-salary"
                     type="text"
-                    inputMode="numeric"
-                    maxLength={15}
+                    inputMode="decimal"
+                    maxLength={18}
                     value={currentSalary}
-                    onChange={(e) => setCurrentSalary(e.target.value)}
-                    placeholder="örn: 53000"
+                    onChange={handleSalaryChange}
+                    placeholder="örn: 50.000,00"
                     className="w-full max-w-full min-w-0 pl-10 md:pl-12 pr-3 md:pr-4 py-3 md:py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-2xl md:text-3xl font-bold text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-white/30 box-border"
                     aria-label="Mevcut net maaşınız"
                   />

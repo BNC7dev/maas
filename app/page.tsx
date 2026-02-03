@@ -227,23 +227,25 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         {/* Modern Header - Glassmorphism */}
         <header className="mb-6 md:mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-r from-slate-100 via-gray-100 to-slate-200 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-            {/* Mor/Mavi gradient accent */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-transparent" />
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-400" />
+          {/* Gradient border wrapper */}
+          <div className="p-[2px] rounded-xl md:rounded-2xl bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-400 shadow-lg">
+            <div className="relative overflow-hidden bg-gradient-to-r from-slate-100 via-gray-100 to-slate-200 rounded-[10px] md:rounded-[14px] p-4 md:p-6">
+              {/* Mor/Mavi gradient accent */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-transparent" />
 
-            <div className="relative flex items-center gap-3 md:gap-4">
-              {/* Icon container - glassmorphism */}
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-slate-700 to-slate-900 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg border border-slate-600/30 flex-shrink-0">
-                <svg className="w-6 h-6 md:w-7 md:h-7 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11z" />
-                </svg>
+              <div className="relative flex items-center gap-3 md:gap-4">
+                {/* Icon container - glassmorphism */}
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-slate-700 to-slate-900 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg border border-slate-600/30 flex-shrink-0">
+                  <svg className="w-6 h-6 md:w-7 md:h-7 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11z" />
+                  </svg>
+                </div>
+
+                {/* Title */}
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 tracking-tight">
+                  Memur Maaş Zammı Hesaplama
+                </h1>
               </div>
-
-              {/* Title */}
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 tracking-tight">
-                Memur Maaş Zammı Hesaplama
-              </h1>
             </div>
           </div>
         </header>

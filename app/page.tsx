@@ -225,44 +225,25 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 py-4 md:py-8 px-3 md:px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Modern Header */}
+        {/* Modern Header - Glassmorphism */}
         <header className="mb-6 md:mb-12">
-          <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl p-4 md:p-8">
-            {/* Dekoratif arka plan efektleri - sadece desktop'ta görünür */}
-            <div className="hidden md:block absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))]" />
-            <div className="hidden md:block absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-            <div className="hidden md:block absolute bottom-0 left-0 translate-y-12 -translate-x-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
+          <div className="relative overflow-hidden bg-gradient-to-r from-slate-100 via-gray-100 to-slate-200 rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+            {/* Mor/Mavi gradient accent */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-blue-500/5 to-transparent" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-400" />
 
-            <div className="relative">
-              <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center text-3xl md:text-4xl shadow-lg border border-white/30 flex-shrink-0">
-                  💼
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
-                    Memur Maaş Zammı Hesaplama
-                  </h1>
-                  <p className="text-blue-100 text-sm md:text-lg mt-0.5 md:mt-1">
-                    Kümülatif yöntemle hassas hesaplama
-                  </p>
-                </div>
+            <div className="relative flex items-center gap-3 md:gap-4">
+              {/* Icon container - glassmorphism */}
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-slate-700 to-slate-900 backdrop-blur-sm rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg border border-slate-600/30 flex-shrink-0">
+                <svg className="w-6 h-6 md:w-7 md:h-7 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 15H4V8h16v11z" />
+                </svg>
               </div>
 
-              {/* Bilgi badge'leri - mobilde daha kompakt */}
-              <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-6">
-                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
-                  <span>✨</span>
-                  Otomatik
-                </span>
-                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
-                  <span>🏦</span>
-                  TCMB
-                </span>
-                <span className="inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm text-white border border-white/20">
-                  <span>🔒</span>
-                  Güvenli
-                </span>
-              </div>
+              {/* Title */}
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 tracking-tight">
+                Memur Maaş Zammı Hesaplama
+              </h1>
             </div>
           </div>
         </header>

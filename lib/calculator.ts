@@ -53,9 +53,10 @@ export interface InflationDiffResult {
 
 /**
  * Hesaptan düşme (enflasyon farkı) hesaplar
- * diffFactor = cumFactor / (1 + oldTis/100)
+ * Formül: EF = max(0, cumFactor / (1 + oldTis/100) - 1)
+ * Eğer kümülatif enflasyon TİS'i aşmıyorsa, enflasyon farkı 0 olur
  * @param cumulativeFactor - Kümülatif enflasyon çarpanı
- * @param oldTisRate - Önceki toplu sözleşme oranı
+ * @param oldTisRate - Önceki toplu sözleşme oranı (eşik)
  * @returns Fark çarpanı ve yüzdesi veya null
  */
 export function computeInflationDiff(
@@ -64,10 +65,18 @@ export function computeInflationDiff(
 ): InflationDiffResult | null {
   if (oldTisRate === null) return null;
 
-  const diffFactor = cumulativeFactor / (1 + oldTisRate / 100);
-  const diffPercentage = (diffFactor - 1) * 100;
+  const tisFactor = 1 + oldTisRate / 100;
+  const rawDiffFactor = cumulativeFactor / tisFactor;
 
-  return { factor: diffFactor, percentage: diffPercentage };
+  // Enflasyon TİS'i aşmıyorsa, fark 0 olmalı
+  // max(0, rawDiffFactor - 1) mantığı
+  if (rawDiffFactor <= 1) {
+    return { factor: 1, percentage: 0 };
+  }
+
+  const diffPercentage = (rawDiffFactor - 1) * 100;
+
+  return { factor: rawDiffFactor, percentage: diffPercentage };
 }
 
 export interface TotalRaiseResult {

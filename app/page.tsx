@@ -335,7 +335,7 @@ export default function Home() {
               {cumulativePercent !== null && (
                 <div className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">
-                    Toplam kümülatif enflasyon
+                    Enflasyon toplamı
                   </span>
                   <span className="text-2xl font-bold text-primary">
                     {formatPercent(cumulativePercent)}

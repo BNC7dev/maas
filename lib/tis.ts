@@ -22,7 +22,7 @@ export function parseTisData(text: string): TisRate[] {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    
+
     // Boş satır veya yorum satırını atla
     if (!trimmed || trimmed.startsWith('#')) continue;
 
@@ -53,41 +53,40 @@ export function getTisPeriodInfo() {
   // Son açıklanan ay (1 ay geriden gelir)
   let lastAnnouncedMonth = currentMonth - 1;
   let lastAnnouncedYear = currentYear;
-  
+
   if (lastAnnouncedMonth === 0) {
     lastAnnouncedMonth = 12;
     lastAnnouncedYear = currentYear - 1;
   }
 
-  // Hangi dönemdeyiz?
-  const isFirstPeriod = currentMonth >= 1 && currentMonth <= 6; // Ocak-Haziran
-  
-  // Eski Toplu Sözleşme: Mevcut maaşımızın hesaplandığı dönem (önceki dönem)
+  // Hangi zammı hesaplıyoruz? (Son açıklanan aya göre belirlenir - TCMB ile aynı mantık)
+  // Son açıklanan ay Ocak-Haziran (1-6) arasındaysa → Temmuz zammını hesapla
+  // Son açıklanan ay Temmuz-Aralık (7-12) arasındaysa → Ocak zammını hesapla
+  const isCalculatingJulyRaise = lastAnnouncedMonth >= 1 && lastAnnouncedMonth <= 6;
+  const isFirstPeriod = isCalculatingJulyRaise; // Uyumluluk için
+
+  // Toplu Sözleşme: Eski ve Yeni dönem oranlarını belirle
   let oldTisYear: number;
   let oldTisPeriod: 1 | 2;
-  
-  if (isFirstPeriod) {
-    // Ocak-Haziran dönemindeyiz → Geçen yılın 2. dönem (Temmuz-Aralık) verisi
-    oldTisYear = currentYear - 1;
-    oldTisPeriod = 2;
-  } else {
-    // Temmuz-Aralık dönemindeyiz → Aynı yılın 1. dönem (Ocak-Haziran) verisi
-    oldTisYear = currentYear;
-    oldTisPeriod = 1;
-  }
-
-  // Yeni Toplu Sözleşme: Şu anki dönemin oranı
   let newTisYear: number;
   let newTisPeriod: 1 | 2;
-  
-  if (isFirstPeriod) {
-    // Şu an 1. dönemdeyiz → Yeni Toplu Sözleşme: Aynı yılın 1. dönemi
-    newTisYear = currentYear;
-    newTisPeriod = 1;
-  } else {
-    // Şu an 2. dönemdeyiz → Yeni Toplu Sözleşme: Aynı yılın 2. dönemi
-    newTisYear = currentYear;
+
+  if (isCalculatingJulyRaise) {
+    // Temmuz zammını hesaplıyoruz
+    // Eski TİS: Aynı yılın 1. dönemi (Ocak-Haziran için verilen zam)
+    // Yeni TİS: Aynı yılın 2. dönemi (Temmuz-Aralık için uygulanacak zam)
+    oldTisYear = lastAnnouncedYear;
+    oldTisPeriod = 1;
+    newTisYear = lastAnnouncedYear;
     newTisPeriod = 2;
+  } else {
+    // Ocak zammını hesaplıyoruz
+    // Eski TİS: Son açıklanan yılın 2. dönemi (Temmuz-Aralık için verilen zam)
+    // Yeni TİS: Sonraki yılın 1. dönemi (Ocak-Haziran için uygulanacak zam)
+    oldTisYear = lastAnnouncedYear;
+    oldTisPeriod = 2;
+    newTisYear = lastAnnouncedYear + 1;
+    newTisPeriod = 1;
   }
 
   return {
@@ -119,7 +118,7 @@ export function getCurrentTisRates(allRates: TisRate[]): {
   newTisLabel: string;
 } {
   const periodInfo = getTisPeriodInfo();
-  
+
   const oldTis = findTisRate(allRates, periodInfo.oldTis.year, periodInfo.oldTis.period);
   const newTis = findTisRate(allRates, periodInfo.newTis.year, periodInfo.newTis.period);
 

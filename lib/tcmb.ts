@@ -149,8 +149,8 @@ export function getPeriodInflationData(allData: InflationData[]): string[] {
     if (monthData) {
       result[index] = monthData.rate.toString().replace('.', ',');
     } else if (periodInfo.unavailableMonths.includes(month)) {
-      // Henüz açıklanmamış → 1 yaz
-      result[index] = '1';
+      // Henüz açıklanmamış → 0 yaz (nötr, hesaplamayı etkilemez)
+      result[index] = '0';
     }
   });
 

@@ -1,0 +1,13 @@
+# Toplu Sözleşme Zam Oranları
+# Format: YIL/DONEM=ORAN
+# DÖNEM: 1 = Ocak-Haziran (İlk 6 ay), 2 = Temmuz-Aralık (İkinci 6 ay)
+# ORAN: Yüzde değeri (ondalık nokta kullanın)
+
+2024/1=15
+2024/2=10
+2025/1=6
+2025/2=5
+2026/1=11
+2026/2=7
+2027/1=5
+2027/2=4
